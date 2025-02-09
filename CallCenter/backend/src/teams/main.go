@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"teams/shared/dbEntity"
-	"teams/shared/mongodb"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prem/callcenter/sharedlib/dbentities"
+	"github.com/prem/callcenter/sharedlib/repository"
 	"go.uber.org/zap"
 )
 
@@ -148,8 +148,8 @@ func GetTeamsDBHandler(c *gin.Context) {
 		return
 	}
 
-	var teams []dbEntity.Team
-	filter := dbEntity.Team{}
+	var teams []dbentities.Team
+	filter := dbentities.Team{}
 
 	//--------------Get the existing secret entity--------------
 	findErr := mongoConn.Find(filter, &teams, nil)
@@ -182,7 +182,7 @@ func GetTeamsDBHandler(c *gin.Context) {
 	c.JSON(200, response)
 }
 
-func getMongoConnection(collectionName string) (mongodb.MongodbConnection, error) {
+func getMongoConnection(collectionName string) (repository.MongodbConnection, error) {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 
@@ -197,18 +197,18 @@ func getMongoConnection(collectionName string) (mongodb.MongodbConnection, error
 		mongoDbUri = os.Getenv("MONGO_SERVER_URI")
 		if len(mongoDbUri) == 0 {
 			fmt.Println("MONGO_SERVER_URI is missing.")
-			return mongodb.MongodbConnection{}, errors.New("MONGO_SERVER_URI is missing.")
+			return repository.MongodbConnection{}, errors.New("MONGO_SERVER_URI is missing.")
 		}
 	} else {
 		mongoDbUri = os.Getenv("CC_MONGO_SERVER")
 		if len(mongoDbUri) == 0 {
 			fmt.Println("CC_MONGO_SERVER is missing.")
 			logger.Warn("CC_MONGO_SERVER is missing.")
-			return mongodb.MongodbConnection{}, errors.New("CC_MONGO_SERVER is missing")
+			return repository.MongodbConnection{}, errors.New("CC_MONGO_SERVER is missing")
 		}
 	}
 
 	fmt.Println("mongodb-URI:" + mongoDbUri)
 	logger.Info("mongodb-URI:" + mongoDbUri)
-	return mongodb.MongodbConnection{Uri: mongoDbUri, DbName: "callcenter", CollectionName: collectionName}, nil
+	return repository.MongodbConnection{Uri: mongoDbUri, DbName: "callcenter", CollectionName: collectionName}, nil
 }
