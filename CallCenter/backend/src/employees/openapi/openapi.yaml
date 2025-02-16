@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  title: Employees Service API
+  description: API for managing employees
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+paths:
+  /employees:
+    get:
+      summary: Get all employees
+      operationId: getEmployees
+      responses:
+        '200':
+          description: List of employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+    post:
+      summary: Create a new employee
+      operationId: createEmployee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+      responses:
+        '201':
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+
+  /employees/{id}:
+    get:
+      summary: Get an employee by ID
+      operationId: getEmployeeById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Employee details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+    put:
+      summary: Update an employee
+      operationId: updateEmployee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+      responses:
+        '200':
+          description: Employee updated
+    delete:
+      summary: Delete an employee
+      operationId: deleteEmployee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Employee deleted
+
+components:
+  schemas:
+    Employee:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "60c72b2f9af1b12345678901"
+        name:
+          type: string
+          example: "Alice Johnson"
+        email:
+          type: string
+          format: email
+          example: "alice@example.com"
+        role:
+          type: string
+          example: "Engineer"
+        phone:
+          type: string
+          example: "+1234567890"

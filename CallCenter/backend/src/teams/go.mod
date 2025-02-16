@@ -1,6 +1,6 @@
 module teams
 
-go 1.21.4
+go 1.24.0
 
 replace github.com/prem/callcenter/sharedlib => ../sharedlib
 
