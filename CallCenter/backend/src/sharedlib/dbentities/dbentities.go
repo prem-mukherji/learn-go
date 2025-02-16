@@ -1,4 +1,4 @@
-package dbEntity
+package dbentities
 
 type Team struct {
 	ID          string   `json:"id,omitempty" bson:"id,omitempty"`

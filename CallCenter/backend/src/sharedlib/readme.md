@@ -10,3 +10,13 @@ To create a shared library as a separate Go module and use it in your services, 
     go mod init github.com/prem/callcenter/sharedlib
 ```
 
+Directory structure to follow:
+
+``` vbnet
+sharedlib/                # Go module (single go.mod)
+│── go.mod                # Defines the module
+│── utils/                # Package 1
+│   │── utils.go
+│── models/               # Package 2
+│   │── models.go
+```

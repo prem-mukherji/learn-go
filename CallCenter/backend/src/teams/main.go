@@ -2,14 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
-	"teams/shared/dbEntity"
-	"teams/shared/mongodb"
+
+	"teams/database"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prem/callcenter/sharedlib/dbentities"
 	"go.uber.org/zap"
 )
 
@@ -140,7 +140,7 @@ func GetTeamsDBHandler(c *gin.Context) {
 		Message: APPPrefix + "Unable to retrieve data.",
 	}
 
-	mongoConn, err := getMongoConnection("team")
+	mongoConn, err := database.GetMongoConnection("team")
 	if err != nil {
 		response.Message += "mongo connection error: " + err.Error()
 		logger.Error(response.Message)
@@ -148,8 +148,8 @@ func GetTeamsDBHandler(c *gin.Context) {
 		return
 	}
 
-	var teams []dbEntity.Team
-	filter := dbEntity.Team{}
+	var teams []dbentities.Team
+	filter := dbentities.Team{}
 
 	//--------------Get the existing secret entity--------------
 	findErr := mongoConn.Find(filter, &teams, nil)
@@ -180,35 +180,4 @@ func GetTeamsDBHandler(c *gin.Context) {
 	}
 
 	c.JSON(200, response)
-}
-
-func getMongoConnection(collectionName string) (mongodb.MongodbConnection, error) {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-
-	var mongoDbUri string
-	debugMode := os.Getenv("DEBUG_MODE")
-	if len(debugMode) == 0 {
-		debugMode = "false"
-		logger.Info("debug mode set to false")
-	}
-
-	if debugMode == "true" {
-		mongoDbUri = os.Getenv("MONGO_SERVER_URI")
-		if len(mongoDbUri) == 0 {
-			fmt.Println("MONGO_SERVER_URI is missing.")
-			return mongodb.MongodbConnection{}, errors.New("MONGO_SERVER_URI is missing.")
-		}
-	} else {
-		mongoDbUri = os.Getenv("CC_MONGO_SERVER")
-		if len(mongoDbUri) == 0 {
-			fmt.Println("CC_MONGO_SERVER is missing.")
-			logger.Warn("CC_MONGO_SERVER is missing.")
-			return mongodb.MongodbConnection{}, errors.New("CC_MONGO_SERVER is missing")
-		}
-	}
-
-	fmt.Println("mongodb-URI:" + mongoDbUri)
-	logger.Info("mongodb-URI:" + mongoDbUri)
-	return mongodb.MongodbConnection{Uri: mongoDbUri, DbName: "callcenter", CollectionName: collectionName}, nil
 }
