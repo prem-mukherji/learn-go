@@ -31,7 +31,5 @@ func GetMongoConnection(collectionName string) (repository.MongodbConnection, er
 		}
 	}
 
-	fmt.Println("mongodb-URI:" + mongoDbUri)
-	logger.Info("mongodb-URI:" + mongoDbUri)
 	return repository.MongodbConnection{Uri: mongoDbUri, DbName: "callcenter", CollectionName: collectionName}, nil
 }
