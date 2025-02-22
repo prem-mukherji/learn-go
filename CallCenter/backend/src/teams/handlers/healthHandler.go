@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"os"
-	"teams/viewModels"
+	"teams/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +27,7 @@ func HealthHandler(c *gin.Context) {
 	apiSettings.MongoURI = os.Getenv("MONGO_SERVER_URI")
 	apiSettings.LastUpdate = os.Getenv("LASTUPDATE")
 
-	response := viewModels.ApiResponse{
+	response := models.ApiResponse{
 		Status:  "200",
 		Message: "Web-app is healthy...",
 		Data: []interface{}{

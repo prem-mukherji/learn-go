@@ -17,5 +17,6 @@ func SetupServer() *gin.Engine {
 	r.GET("/", handlers.HealthHandler)
 	r.GET("/teamsFromFile", handlers.GetTeamsFromFileHandler)
 	r.GET("/teams", handlers.GetTeamsHandler)
+	r.POST("/teams", handlers.CreateTeamHandler)
 	return r
 }

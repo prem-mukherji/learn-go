@@ -6,7 +6,8 @@ import (
 	"io"
 	"os"
 	"teams/database"
-	"teams/viewModels"
+	"teams/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prem/callcenter/sharedlib/dbentities"
@@ -41,7 +42,7 @@ func GetTeamsFromFileHandler(c *gin.Context) {
 		//fmt.Printf("key=%s value=%+v\n ", k, v)
 	}
 
-	response := viewModels.ApiResponse{
+	response := models.ApiResponse{
 		Status:  os.Getenv("FILEPATH") + os.Getenv("FILENAME"),
 		Message: "Data retrieved successfully",
 		Data:    array,
@@ -54,18 +55,18 @@ func GetTeamsHandler_1(c *gin.Context) {
 	var userlist []interface{}
 
 	userlist = append(userlist,
-		viewModels.UserData{
+		models.UserData{
 			Username: "prem",
 			Email:    "prem@example.com",
 		})
 
 	userlist = append(userlist,
-		viewModels.UserData{
+		models.UserData{
 			Username: "priya",
 			Email:    "priya@example.com",
 		})
 
-	response := viewModels.ApiResponse{
+	response := models.ApiResponse{
 		Status:  os.Getenv("NEWVAR"),
 		Message: "Data retrieved successfully",
 		Data:    userlist,
@@ -74,11 +75,53 @@ func GetTeamsHandler_1(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+func CreateTeamHandler(c *gin.Context) {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+
+	response := models.ApiResponse{
+		Status:  "400",
+		Message: APPPrefix + "Unable to retrieve data.",
+	}
+
+	mongoConn, err := database.GetMongoConnection("team")
+	if err != nil {
+		response.Message += "mongo connection error: " + err.Error()
+		logger.Error(response.Message)
+		c.JSON(400, response)
+		return
+	}
+
+	data := dbentities.Team{
+		ID:          "1101",
+		DisplayName: "chavva",
+		Area:        "hoskote",
+		TeamLead:    "110011",
+		UpdatedBy:   "Prem",
+		UpdatedDate: time.Now().String(),
+	}
+
+	insertResult, err := mongoConn.InsertOne(data, nil)
+
+	if err != nil {
+		response.Message += "Insert failed. Error: " + err.Error()
+		logger.Error(response.Message)
+		c.JSON(400, response)
+		return
+	}
+
+	response.Status = "200"
+	response.Message = "Data retrieved successfully"
+	response.Data = append(response.Data, insertResult)
+
+	c.JSON(200, response)
+}
+
 func GetTeamsHandler(c *gin.Context) {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 
-	response := viewModels.ApiResponse{
+	response := models.ApiResponse{
 		Status:  "400",
 		Message: APPPrefix + "Unable to retrieve data.",
 	}
@@ -116,7 +159,7 @@ func GetTeamsHandler(c *gin.Context) {
 		array = append(array, v)
 	}
 
-	response = viewModels.ApiResponse{
+	response = models.ApiResponse{
 		Status:  "200",
 		Message: "Data retrieved successfully",
 		Data:    array,
