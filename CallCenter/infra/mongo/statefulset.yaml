@@ -2,29 +2,33 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mongodb
+  name: mongo
   namespace: cloud-explorer-d
 spec:
-  serviceName: "mongo-svc"
+  serviceName: "mongodb-headless"
   replicas: 3
   selector:
     matchLabels:
-      app: mongodb
+      app: mongo
   template:
     metadata:
       labels:
-        app: mongodb
-        environment: test
+        app: mongo
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-        - name: mongodb
+        - name: mongo
           image: mongo
           command:
-            - /bin/sh
-            - -c
-            - >
-              mongod --replSet rs0 --bind_ip 0.0.0.0;
+            - mongod
+            - "-replSet"
+            - "rs0"
+            - "--bind_ip_all"
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: callcenterrepo
+              mountPath: /data/db
           resources:
             requests:
               memory: "256Mi"
@@ -32,17 +36,11 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "200m"
-          ports:
-            - containerPort: 27017
-          volumeMounts:
-            - name: callcenterdb
-              mountPath: /data/db
   volumeClaimTemplates:
     - metadata:
-        name: callcenterdb
+        name: callcenterrepo
       spec:
-        accessModes:
-          - ReadWriteOnce
+        accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
             storage: 1Gi
